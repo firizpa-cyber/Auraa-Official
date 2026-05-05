@@ -18,17 +18,25 @@
           >
             Создание премиальных цифровых продуктов, которые вдохновляют и обеспечивают значимый рост для передовых брендов.
           </p>
-          <div class="flex gap-6">
+          <div class="grid grid-cols-2 gap-3 max-w-sm">
             <a
               v-for="icon in socialIcons"
               :key="icon.name"
               href="#"
-              class="transition-colors duration-200"
-              style="color: var(--text-muted)"
-              @mouseenter="($event.target as HTMLElement).style.color = 'var(--text-primary)'"
-              @mouseleave="($event.target as HTMLElement).style.color = 'var(--text-muted)'"
+              class="glass-card group inline-flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold transition-all duration-200"
+              :style="{
+                color: 'var(--text-primary)',
+              }"
+              @mouseenter="handleSocialHover($event, true)"
+              @mouseleave="handleSocialHover($event, false)"
             >
-              <component :is="icon.component" />
+              <span
+                class="social-icon flex h-8 w-8 shrink-0 items-center justify-center rounded-lg transition-colors duration-200"
+                :style="{ backgroundColor: 'var(--accent-subtle)', color: 'var(--accent)' }"
+              >
+                <component :is="icon.component" class="w-4 h-4" />
+              </span>
+              <span class="leading-none">{{ icon.label }}</span>
             </a>
           </div>
         </div>
@@ -63,9 +71,9 @@
             Контакты
           </h4>
           <ul class="flex flex-col gap-4" style="color: var(--text-muted)">
-            <li>hello@aura.digital</li>
-            <li>+7 (999) 000-0000</li>
-            <li>ул. Инноваций, 123<br />Москва, Россия</li>
+            <li>ioauura@gmail.com</li>
+            <li>+992 92 000 0000</li>
+            <li>Таджикистан<br />город, Худжанд</li>
           </ul>
         </div>
       </div>
@@ -85,14 +93,29 @@
 </template>
 
 <script setup lang="ts">
-import { Instagram, Twitter, Linkedin, Github } from 'lucide-vue-next'
+import { Github, Instagram, MessageCircle, Send } from 'lucide-vue-next'
 
 const socialIcons = [
-  { name: 'instagram', component: Instagram },
-  { name: 'twitter', component: Twitter },
-  { name: 'linkedin', component: Linkedin },
-  { name: 'github', component: Github },
+  { name: 'instagram', label: 'Instagram', component: Instagram },
+  { name: 'telegram', label: 'Telegram', component: Send },
+  { name: 'whatsapp', label: 'WhatsApp', component: MessageCircle },
+  { name: 'github', label: 'GitHub', component: Github },
 ]
+
+function handleSocialHover(event: MouseEvent, isActive: boolean) {
+  const link = event.currentTarget as HTMLElement
+  const icon = link.querySelector('.social-icon') as HTMLElement | null
+
+  link.style.borderColor = isActive ? 'var(--border-medium)' : 'var(--border-subtle)'
+  link.style.backgroundColor = isActive ? 'var(--accent-subtle)' : 'var(--glass-bg)'
+  link.style.transform = isActive ? 'translateY(-2px)' : 'translateY(0)'
+  link.style.boxShadow = isActive ? '0 12px 32px var(--shadow-color)' : '0 1px 3px var(--shadow-color)'
+
+  if (icon) {
+    icon.style.backgroundColor = isActive ? 'var(--accent)' : 'var(--accent-subtle)'
+    icon.style.color = isActive ? '#ffffff' : 'var(--accent)'
+  }
+}
 
 const navLinks = [
   { label: 'О нас', href: '#about' },

@@ -35,42 +35,42 @@
           @mouseleave="hoveredIndex = null"
         >
           <div
-            class="relative aspect-[16/11] rounded-[2.5rem] overflow-hidden mb-8 border shadow-2xl"
+            class="relative aspect-[16/11] rounded-[2.5rem] overflow-hidden mb-8 border shadow-2xl transition-shadow duration-700 ease-out group-hover:shadow-[0_30px_80px_var(--shadow-strong)]"
             style="border-color: var(--border-subtle)"
           >
             <img
               :src="project.image"
               :alt="project.title"
-              class="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110"
+              class="w-full h-full object-cover transition-transform duration-[1200ms] ease-out group-hover:scale-[1.08]"
               referrerpolicy="no-referrer"
             />
 
             <!-- Overlay -->
             <div
-              class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent transition-all duration-500 flex flex-col justify-end p-10"
+              class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent transition-all duration-700 ease-out flex flex-col justify-end p-10"
               :class="hoveredIndex === i ? 'opacity-100' : 'opacity-0'"
             >
               <div
-                class="transition-all duration-400"
+                class="will-change-transform"
                 :style="{
                   opacity: hoveredIndex === i ? 1 : 0,
-                  transform: hoveredIndex === i ? 'translateY(0)' : 'translateY(20px)',
-                  transitionDelay: hoveredIndex === i ? '0.1s' : '0s',
+                  transform: hoveredIndex === i ? 'translate3d(0, 0, 0)' : 'translate3d(0, 18px, 0)',
+                  transition: `opacity 720ms var(--motion-ease-soft) ${hoveredIndex === i ? '140ms' : '0ms'}, transform 720ms var(--motion-ease-soft) ${hoveredIndex === i ? '140ms' : '0ms'}`,
                 }"
               >
                 <div class="flex gap-2 mb-4">
                   <span
                     v-for="tag in project.tags"
                     :key="tag"
-                    class="px-3 py-1 rounded-full bg-white/10 backdrop-blur-md text-[9px] font-bold text-white uppercase tracking-wider border border-white/10"
+                    class="px-3 py-1 rounded-full bg-white/10 backdrop-blur-md text-[9px] font-bold text-white uppercase tracking-wider border border-white/10 transition-all duration-700 ease-out"
                   >
                     {{ tag }}
                   </span>
                 </div>
-                <p class="text-white/80 text-sm font-light leading-relaxed mb-6 max-w-sm">
+                <p class="text-white/80 text-sm font-light leading-relaxed mb-6 max-w-sm transition-opacity duration-700 ease-out">
                   {{ project.description }}
                 </p>
-                <div class="flex items-center gap-2 text-white font-display font-bold text-sm">
+                <div class="flex items-center gap-2 text-white font-display font-bold text-sm transition-opacity duration-700 ease-out">
                   Смотреть кейс
                   <ArrowUpRight class="w-4 h-4 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
                 </div>
@@ -79,7 +79,7 @@
 
             <!-- FAB -->
             <div
-              class="absolute top-8 right-8 w-12 h-12 bg-white/10 backdrop-blur-xl border border-white/20 rounded-full flex items-center justify-center text-white transition-all duration-500"
+              class="absolute top-8 right-8 w-12 h-12 bg-white/10 backdrop-blur-xl border border-white/20 rounded-full flex items-center justify-center text-white transition-all duration-700 ease-out"
               :class="hoveredIndex === i ? 'opacity-100 scale-100' : 'opacity-0 scale-50'"
             >
               <Plus class="w-6 h-6" />
@@ -89,7 +89,7 @@
           <div class="flex justify-between items-end px-4">
             <div>
               <h3
-                class="text-2xl font-display font-bold mb-2 transition-colors duration-300"
+                class="text-2xl font-display font-bold mb-2 transition-colors duration-500 ease-out"
                 :style="{ color: hoveredIndex === i ? 'var(--text-secondary)' : 'var(--text-primary)' }"
               >
                 {{ project.title }}
@@ -102,7 +102,7 @@
               </p>
             </div>
             <div
-              class="w-10 h-10 rounded-full border flex items-center justify-center transition-all duration-500"
+              class="w-10 h-10 rounded-full border flex items-center justify-center transition-all duration-500 ease-out"
               :style="{
                 borderColor: hoveredIndex === i ? 'var(--accent)' : 'var(--border-light)',
                 backgroundColor: hoveredIndex === i ? 'var(--accent)' : 'transparent',
@@ -133,10 +133,15 @@ const caseEls = ref<HTMLElement[]>([])
 const visibleCases = ref<boolean[]>(cases.map(() => false))
 
 function getCaseStyle(i: number) {
+  const isVisible = visibleCases.value[i]
+  const isHovered = hoveredIndex.value === i
+
   return {
-    opacity: visibleCases.value[i] ? 1 : 0,
-    transform: visibleCases.value[i] ? 'translateY(0)' : 'translateY(40px)',
-    transition: `opacity 0.8s cubic-bezier(0.21,0.47,0.32,0.98) ${i * 0.1}s, transform 0.8s cubic-bezier(0.21,0.47,0.32,0.98) ${i * 0.1}s`,
+    opacity: isVisible ? 1 : 0,
+    transform: isVisible
+      ? `translate3d(0, ${isHovered ? '-8px' : '0'}, 0)`
+      : 'translate3d(0, 40px, 0)',
+    transition: `opacity 0.8s var(--motion-ease-soft) ${i * 0.1}s, transform 0.55s var(--motion-ease) ${i * 0.1}s`,
   }
 }
 

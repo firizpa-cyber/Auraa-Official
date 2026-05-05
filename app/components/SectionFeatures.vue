@@ -29,11 +29,13 @@
           v-for="(feature, i) in features"
           :key="feature.title"
           ref="featureEls"
-          class="glass-card p-8 rounded-2xl hover:shadow-lg transition-all duration-300 group"
+          class="glass-card p-8 rounded-2xl hover:shadow-lg transition-all duration-500 ease-out group"
           :style="getFeatureStyle(i)"
+          @mouseenter="hoveredFeatureIndex = i"
+          @mouseleave="hoveredFeatureIndex = null"
         >
           <div
-            class="mb-6 p-3 rounded-xl w-fit transition-colors duration-300"
+            class="mb-6 p-3 rounded-xl w-fit transition-all duration-500 ease-out group-hover:scale-105"
             style="background-color: var(--accent-subtle)"
           >
             <component :is="feature.icon" class="w-5 h-5" style="color: var(--accent)" />
@@ -65,12 +67,18 @@ const features = [
 
 const featureEls = ref<HTMLElement[]>([])
 const visibleFeatures = ref<boolean[]>(features.map(() => false))
+const hoveredFeatureIndex = ref<number | null>(null)
 
 function getFeatureStyle(i: number) {
+  const isVisible = visibleFeatures.value[i]
+  const isHovered = hoveredFeatureIndex.value === i
+
   return {
-    opacity: visibleFeatures.value[i] ? 1 : 0,
-    transform: visibleFeatures.value[i] ? 'translateY(0)' : 'translateY(20px)',
-    transition: `opacity 0.5s ease ${i * 0.1}s, transform 0.5s ease ${i * 0.1}s`,
+    opacity: isVisible ? 1 : 0,
+    transform: isVisible
+      ? `translate3d(0, ${isHovered ? '-6px' : '0'}, 0)`
+      : 'translate3d(0, 20px, 0)',
+    transition: `opacity 0.55s var(--motion-ease-soft) ${i * 0.08}s, transform 0.45s var(--motion-ease) ${i * 0.08}s, box-shadow 0.45s var(--motion-ease)`,
   }
 }
 

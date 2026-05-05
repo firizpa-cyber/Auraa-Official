@@ -26,6 +26,9 @@ export interface BriefRecord {
   name: string
   email: string
   phone: string
+  messenger_contact: string | null
+  telegram: string | null
+  whatsapp: string | null
   company: string | null
   project_type: string
   budget: string | null
@@ -47,6 +50,9 @@ export async function initDb(): Promise<void> {
       name         TEXT    NOT NULL,
       email        TEXT    NOT NULL,
       phone        TEXT    NOT NULL,
+      messenger_contact TEXT,
+      telegram     TEXT,
+      whatsapp     TEXT,
       company      TEXT,
       project_type TEXT    NOT NULL,
       budget       TEXT,
@@ -62,6 +68,10 @@ export async function initDb(): Promise<void> {
     CREATE INDEX IF NOT EXISTS idx_briefs_created_at ON briefs(created_at);
     CREATE INDEX IF NOT EXISTS idx_briefs_status     ON briefs(status);
   `)
+
+  await addColumnIfMissing('briefs', 'messenger_contact', 'TEXT')
+  await addColumnIfMissing('briefs', 'telegram', 'TEXT')
+  await addColumnIfMissing('briefs', 'whatsapp', 'TEXT')
 }
 
 export async function insertBrief(
@@ -71,13 +81,16 @@ export async function insertBrief(
 
   const result = await db.execute({
     sql: `INSERT INTO briefs
-            (name, email, phone, company, project_type, budget, description, timeline, ip_address, user_agent)
+            (name, email, phone, messenger_contact, telegram, whatsapp, company, project_type, budget, description, timeline, ip_address, user_agent)
           VALUES
-            (:name, :email, :phone, :company, :project_type, :budget, :description, :timeline, :ip_address, :user_agent)`,
+            (:name, :email, :phone, :messenger_contact, :telegram, :whatsapp, :company, :project_type, :budget, :description, :timeline, :ip_address, :user_agent)`,
     args: {
       name:         data.name,
       email:        data.email,
       phone:        data.phone,
+      messenger_contact: data.messenger_contact,
+      telegram:     data.telegram,
+      whatsapp:     data.whatsapp,
       company:      data.company,
       project_type: data.project_type,
       budget:       data.budget,
@@ -114,6 +127,9 @@ function rowToRecord(row: any): BriefRecord {
     name:         String(row.name),
     email:        String(row.email),
     phone:        String(row.phone),
+    messenger_contact: row.messenger_contact ? String(row.messenger_contact) : null,
+    telegram:     row.telegram ? String(row.telegram) : null,
+    whatsapp:     row.whatsapp ? String(row.whatsapp) : null,
     company:      row.company ? String(row.company) : null,
     project_type: String(row.project_type),
     budget:       row.budget ? String(row.budget) : null,
@@ -124,5 +140,14 @@ function rowToRecord(row: any): BriefRecord {
     status:       String(row.status),
     created_at:   String(row.created_at),
     updated_at:   String(row.updated_at),
+  }
+}
+
+async function addColumnIfMissing(table: string, column: string, type: string): Promise<void> {
+  const db = getDb()
+  const result = await db.execute(`PRAGMA table_info(${table})`)
+  const exists = result.rows.some((row) => String(row.name) === column)
+  if (!exists) {
+    await db.execute(`ALTER TABLE ${table} ADD COLUMN ${column} ${type}`)
   }
 }

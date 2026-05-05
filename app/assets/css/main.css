@@ -37,6 +37,11 @@
   --gradient-text-from: #0F254B;
   --gradient-text-to:   rgba(15, 37, 75, 0.7);
   --theme-transition: background-color 0.4s ease, color 0.4s ease, border-color 0.4s ease;
+  --motion-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --motion-ease-soft: cubic-bezier(0.16, 1, 0.3, 1);
+  --motion-fast: 180ms;
+  --motion-base: 320ms;
+  --motion-slow: 620ms;
 }
 
 /* Dark theme */
@@ -71,6 +76,7 @@
 /* ─── Base ──────────────────────────────────────────────────────── */
 @layer base {
   html {
+    scroll-behavior: smooth;
     transition: var(--theme-transition);
   }
 
@@ -148,7 +154,10 @@
     -webkit-backdrop-filter: blur(8px);
     border: 1px solid var(--border-subtle);
     box-shadow: 0 1px 3px var(--shadow-color);
-    transition: var(--theme-transition), box-shadow 0.3s ease;
+    transition:
+      var(--theme-transition),
+      box-shadow var(--motion-base) var(--motion-ease),
+      transform var(--motion-base) var(--motion-ease);
   }
 
   .navy-button {
@@ -158,13 +167,20 @@
     border-radius: 0.75rem;
     font-weight: 600;
     font-size: 0.875rem;
-    transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+    transition:
+      background-color var(--motion-base) var(--motion-ease),
+      transform var(--motion-fast) var(--motion-ease),
+      box-shadow var(--motion-base) var(--motion-ease);
     display: inline-flex;
     align-items: center;
   }
   .navy-button:hover {
     background-color: var(--accent-hover);
     box-shadow: 0 8px 24px var(--accent-subtle3);
+    transform: translateY(-1px);
+  }
+  .navy-button:active {
+    transform: translateY(0) scale(0.98);
   }
 
   .outline-button {
@@ -174,17 +190,26 @@
     border-radius: 0.75rem;
     font-weight: 600;
     font-size: 0.875rem;
-    transition: background-color 0.2s ease, border-color 0.2s ease;
+    transition:
+      background-color var(--motion-fast) var(--motion-ease),
+      border-color var(--motion-fast) var(--motion-ease),
+      transform var(--motion-fast) var(--motion-ease);
     display: inline-flex;
     align-items: center;
   }
   .outline-button:hover {
     background-color: var(--accent-subtle);
     border-color: var(--border-medium);
+    transform: translateY(-1px);
+  }
+  .outline-button:active {
+    transform: translateY(0) scale(0.98);
   }
 
   .section-padding {
     @apply py-20 md:py-24;
+    content-visibility: auto;
+    contain-intrinsic-size: auto 720px;
   }
 
   /* Theme toggle button */
@@ -199,7 +224,10 @@
     background-color: var(--accent-subtle);
     color: var(--text-primary);
     cursor: pointer;
-    transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+    transition:
+      background-color var(--motion-fast) var(--motion-ease),
+      border-color var(--motion-fast) var(--motion-ease),
+      transform var(--motion-fast) var(--motion-ease);
   }
   .theme-toggle:hover {
     background-color: var(--accent-subtle2);
@@ -248,12 +276,25 @@
   transition-duration: 0.35s;
   transition-timing-function: ease;
 }
-/* But don't slow down animations/transforms */
+/* But don't slow down continuously animated elements */
 .marquee-track,
 .marquee-left,
 .marquee-right,
-[class*="animate-"],
-[class*="transition-"],
-[class*="duration-"] {
+[class*="animate-"] {
   transition-property: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.001ms !important;
+  }
 }

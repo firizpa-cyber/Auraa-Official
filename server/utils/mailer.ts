@@ -59,6 +59,7 @@ export async function sendBriefEmail(brief: BriefRecord, pdfBuffer: Buffer): Pro
   const config = useRuntimeConfig()
   const to = config.emailTo || 'ioauura@gmail.com'
   const from = config.emailFrom || 'noreply@auraa.digital'
+  const messengerContact = brief.messenger_contact || [brief.telegram, brief.whatsapp].filter(Boolean).join(' / ') || '—'
 
   const transporter = getTransporter(config)
 
@@ -135,13 +136,20 @@ export async function sendBriefEmail(brief: BriefRecord, pdfBuffer: Buffer): Pro
                   <td width="50%" style="vertical-align:top;">
                     <div style="font-size:10px;color:#9ca3af;margin-bottom:4px;text-transform:uppercase;letter-spacing:1px;">Phone</div>
                     <div style="font-size:15px;font-weight:600;color:#0F254B;">
-                      <a href="tel:${brief.phone}" style="color:#4a7fd4;text-decoration:none;">${brief.phone}</a>
+                      ${brief.phone ? `<a href="tel:${brief.phone}" style="color:#4a7fd4;text-decoration:none;">${brief.phone}</a>` : '—'}
                     </div>
                   </td>
                   <td width="50%" style="vertical-align:top;">
+                    <div style="font-size:10px;color:#9ca3af;margin-bottom:4px;text-transform:uppercase;letter-spacing:1px;">Telegram / WhatsApp</div>
+                    <div style="font-size:15px;font-weight:600;color:#0F254B;">${messengerContact}</div>
+                  </td>
+                </tr>
+                <tr>
+                  <td width="50%" style="padding-top:16px;vertical-align:top;">
                     <div style="font-size:10px;color:#9ca3af;margin-bottom:4px;text-transform:uppercase;letter-spacing:1px;">Company</div>
                     <div style="font-size:15px;font-weight:600;color:#0F254B;">${brief.company || '—'}</div>
                   </td>
+                  <td width="50%" style="padding-top:16px;vertical-align:top;"></td>
                 </tr>
               </table>
 
@@ -160,6 +168,13 @@ export async function sendBriefEmail(brief: BriefRecord, pdfBuffer: Buffer): Pro
                     <div style="font-size:10px;color:#9ca3af;margin-bottom:4px;text-transform:uppercase;letter-spacing:1px;">Budget</div>
                     <div style="font-size:15px;font-weight:600;color:#0F254B;">${brief.budget || 'Not specified'}</div>
                   </td>
+                </tr>
+                <tr>
+                  <td width="50%" style="vertical-align:top;">
+                    <div style="font-size:10px;color:#9ca3af;margin-bottom:4px;text-transform:uppercase;letter-spacing:1px;">Timeline</div>
+                    <div style="font-size:15px;font-weight:600;color:#0F254B;">${brief.timeline || 'Not specified'}</div>
+                  </td>
+                  <td width="50%" style="vertical-align:top;"></td>
                 </tr>
               </table>
 

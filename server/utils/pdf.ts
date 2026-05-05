@@ -48,6 +48,8 @@ function safeText(text: string): string {
 
 export async function generateBriefPdf(brief: BriefRecord): Promise<Buffer> {
   return new Promise((resolve, reject) => {
+    const messengerContact = brief.messenger_contact || [brief.telegram, brief.whatsapp].filter(Boolean).join(' / ') || '—'
+
     const doc = new PDFDocument({
       size: 'A4',
       margins: { top: 60, bottom: 60, left: 60, right: 60 },
@@ -169,11 +171,13 @@ export async function generateBriefPdf(brief: BriefRecord): Promise<Buffer> {
     // ── SECTION 1: Contact ─────────────────────────────────────────
     section('CONTACT INFORMATION')
     fieldRow('Client name', brief.name, 'Email', brief.email)
-    fieldRow('Phone', brief.phone, 'Company', brief.company || '—')
+    fieldRow('Phone', brief.phone || '—', 'Telegram / WhatsApp', messengerContact)
+    fieldRow('Company', brief.company || '—', '', '')
 
     // ── SECTION 2: Project ─────────────────────────────────────────
     section('PROJECT DETAILS')
     fieldRow('Service type', brief.project_type, 'Budget', brief.budget || 'Not specified')
+    field('Timeline', brief.timeline || 'Not specified', true)
 
     if (brief.description) {
       const safeDescription = safeText(brief.description)

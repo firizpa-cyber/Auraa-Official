@@ -7,6 +7,9 @@ interface BriefBody {
   name: string
   email: string
   phone: string
+  messengerContact?: string
+  telegram?: string
+  whatsapp?: string
   company?: string
   projectType: string
   budget?: string
@@ -24,7 +27,6 @@ export default defineEventHandler(async (event) => {
   const errors: string[] = []
   if (!body?.name?.trim())        errors.push('name')
   if (!body?.email?.trim())       errors.push('email')
-  if (!body?.phone?.trim())       errors.push('phone')
   if (!body?.projectType?.trim()) errors.push('projectType')
 
   if (errors.length) {
@@ -42,7 +44,10 @@ export default defineEventHandler(async (event) => {
   const brief = await insertBrief({
     name:         body.name.trim(),
     email:        body.email.trim().toLowerCase(),
-    phone:        body.phone.trim(),
+    phone:        body.phone?.trim() || '',
+    messenger_contact: body.messengerContact?.trim() || null,
+    telegram:     null,
+    whatsapp:     null,
     company:      body.company?.trim() || null,
     project_type: body.projectType.trim(),
     budget:       body.budget?.trim() || null,

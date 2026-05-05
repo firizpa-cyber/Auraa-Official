@@ -182,119 +182,6 @@
           </div>
         </div>
       </div>
-
-      <!-- Timeline + Support -->
-      <div class="mt-24 grid grid-cols-1 xl:grid-cols-[minmax(0,1.1fr)_minmax(360px,0.9fr)] gap-8 lg:gap-10 items-start">
-        <!-- Timeline -->
-        <div
-          ref="timelineEl"
-          class="rounded-[2rem] border backdrop-blur-xl p-8 md:p-10 transition-all duration-700"
-          :style="[timelineStyle, {
-            borderColor: 'var(--border-subtle)',
-            backgroundColor: 'var(--glass-bg)',
-            boxShadow: '0 20px 60px var(--shadow-color)',
-          }]"
-        >
-          <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-8">
-            <div class="max-w-2xl">
-              <span
-                class="font-bold text-[10px] tracking-[0.3em] uppercase mb-4 block"
-                style="color: var(--text-muted)"
-              >
-                Этапы сотрудничества
-              </span>
-              <h3
-                class="text-4xl md:text-5xl font-display font-bold tracking-tighter leading-[0.95]"
-                style="color: var(--text-primary)"
-              >
-                Понятный процесс<br />
-                <span style="color: var(--text-muted)">с реальными дедлайнами</span>
-              </h3>
-            </div>
-            <p
-              class="max-w-md text-sm md:text-base leading-relaxed"
-              style="color: var(--text-secondary)"
-            >
-              Сроки зависят от объема задач, но базовый маршрут проекта понятен заранее.
-            </p>
-          </div>
-
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div
-              v-for="(item, index) in collaborationTimeline"
-              :key="item.step"
-              ref="timelineItemEls"
-              class="rounded-[1.5rem] border p-5 md:p-6 transition-all duration-500"
-              :style="[getTimelineItemStyle(index), {
-                borderColor: 'var(--border-subtle)',
-                backgroundColor: 'var(--accent-subtle)',
-              }]"
-            >
-              <div class="flex items-start justify-between gap-4 mb-5">
-                <div
-                  class="w-11 h-11 rounded-2xl text-white flex items-center justify-center font-display font-bold text-sm shadow-lg"
-                  style="background-color: var(--accent)"
-                >
-                  {{ item.step }}
-                </div>
-                <span
-                  class="px-3 py-2 rounded-full border text-[10px] font-bold uppercase tracking-[0.22em]"
-                  style="border-color: var(--border-light); color: var(--text-muted); background-color: var(--glass-bg)"
-                >
-                  {{ item.deadline }}
-                </span>
-              </div>
-              <h4
-                class="text-2xl font-display font-bold tracking-tight mb-3"
-                style="color: var(--text-primary)"
-              >
-                {{ item.title }}
-              </h4>
-              <p
-                class="text-sm md:text-base leading-relaxed"
-                style="color: var(--text-secondary)"
-              >
-                {{ item.description }}
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <!-- Support (dark card) -->
-        <div
-          ref="supportEl"
-          class="rounded-[2rem] border p-8 md:p-10 transition-all duration-700"
-          :style="[supportStyle, {
-            borderColor: 'var(--border-subtle)',
-            backgroundColor: 'var(--accent)',
-            boxShadow: '0 24px 70px var(--shadow-strong)',
-          }]"
-        >
-          <span class="text-white/45 font-bold text-[10px] tracking-[0.3em] uppercase mb-4 block">
-            Гарантии и поддержка
-          </span>
-          <h3 class="text-4xl md:text-5xl font-display font-bold tracking-tighter leading-[0.95] text-white">
-            Работаем не только<br />
-            <span class="text-white/40">до релиза</span>
-          </h3>
-          <p class="mt-6 text-sm md:text-base text-white/72 leading-relaxed">
-            Проект не заканчивается на передаче файлов. Мы закладываем понятные договоренности, контроль качества и сопровождение после запуска.
-          </p>
-
-          <div class="mt-8 space-y-3">
-            <div
-              v-for="(item, index) in supportPromises"
-              :key="item"
-              ref="promiseEls"
-              class="flex items-start gap-4 rounded-[1.4rem] border border-white/10 bg-white/8 px-4 py-4 transition-all duration-500"
-              :style="getPromiseStyle(index)"
-            >
-              <div class="mt-0.5 h-3 w-3 rounded-full bg-white shrink-0" />
-              <p class="text-sm md:text-base text-white/82 leading-relaxed">{{ item }}</p>
-            </div>
-          </div>
-        </div>
-      </div>
     </div>
   </section>
 </template>
@@ -318,39 +205,17 @@ const faqItems = [
   { question: 'Берете ли вы проекты на поддержку после запуска?',  answer: 'Да, сопровождаем продукт после релиза: обновления, мониторинг, улучшение конверсии, доработка функционала и развитие проекта по мере роста задач.' },
 ]
 
-const collaborationTimeline = [
-  { step: '01', title: 'Созвон и бриф',         deadline: '1-2 дня',  description: 'Уточняем задачу, цели проекта, приоритеты и ограничения, чтобы собрать рабочую основу без лишних допущений.' },
-  { step: '02', title: 'Концепция и структура',  deadline: '3-5 дней', description: 'Формируем логику экранов, визуальное направление и ключевые сценарии, чтобы согласовать общее решение до разработки.' },
-  { step: '03', title: 'Дизайн и реализация',    deadline: '7-21 день',description: 'Собираем интерфейс, подключаем нужный функционал и доводим продукт до состояния, готового к запуску.' },
-  { step: '04', title: 'Тесты и запуск',         deadline: '2-4 дня',  description: 'Проверяем стабильность, вносим финальные правки, публикуем проект и готовим его к реальной нагрузке.' },
-]
-
-const supportPromises = [
-  'Фиксируем этапы, сроки и состав работ до старта.',
-  'Держим прозрачную коммуникацию по статусам и следующим шагам.',
-  'Не исчезаем после релиза: остаемся на поддержке и развитии.',
-  'Приоритетно закрываем критические баги и технические вопросы.',
-]
-
 const openFaqIndex = ref(0)
 
 // Refs
 const serviceEls      = ref<HTMLElement[]>([])
 const faqHeaderEl     = ref<HTMLElement | null>(null)
 const faqEls          = ref<HTMLElement[]>([])
-const timelineEl      = ref<HTMLElement | null>(null)
-const timelineItemEls = ref<HTMLElement[]>([])
-const supportEl       = ref<HTMLElement | null>(null)
-const promiseEls      = ref<HTMLElement[]>([])
 
 // Visibility state
 const visibleServices      = ref<boolean[]>(services.map(() => false))
 const faqHeaderVisible     = ref(false)
 const visibleFaqs          = ref<boolean[]>(faqItems.map(() => false))
-const timelineVisible      = ref(false)
-const visibleTimelineItems = ref<boolean[]>(collaborationTimeline.map(() => false))
-const supportVisible       = ref(false)
-const visiblePromises      = ref<boolean[]>(supportPromises.map(() => false))
 
 // Style functions
 function getServiceStyle(i: number) {
@@ -359,14 +224,6 @@ function getServiceStyle(i: number) {
 const faqHeaderStyle = computed(() => ({ opacity: faqHeaderVisible.value ? 1 : 0, transform: faqHeaderVisible.value ? 'translateY(0)' : 'translateY(24px)' }))
 function getFaqStyle(i: number) {
   return { opacity: visibleFaqs.value[i] ? 1 : 0, transform: visibleFaqs.value[i] ? 'translateY(0)' : 'translateY(20px)', transition: `opacity 0.45s ease ${i * 0.06}s, transform 0.45s ease ${i * 0.06}s` }
-}
-const timelineStyle = computed(() => ({ opacity: timelineVisible.value ? 1 : 0, transform: timelineVisible.value ? 'translateY(0)' : 'translateY(24px)' }))
-function getTimelineItemStyle(i: number) {
-  return { opacity: visibleTimelineItems.value[i] ? 1 : 0, transform: visibleTimelineItems.value[i] ? 'translateY(0)' : 'translateY(18px)', transition: `opacity 0.45s ease ${i * 0.06}s, transform 0.45s ease ${i * 0.06}s` }
-}
-const supportStyle = computed(() => ({ opacity: supportVisible.value ? 1 : 0, transform: supportVisible.value ? 'translateY(0)' : 'translateY(24px)', transitionDelay: '0.08s' }))
-function getPromiseStyle(i: number) {
-  return { opacity: visiblePromises.value[i] ? 1 : 0, transform: visiblePromises.value[i] ? 'translateX(0)' : 'translateX(18px)', transition: `opacity 0.4s ease ${i * 0.07}s, transform 0.4s ease ${i * 0.07}s` }
 }
 
 onMounted(async () => {
@@ -390,10 +247,6 @@ onMounted(async () => {
   makeObs(serviceEls.value, visibleServices)
   makeSingle(faqHeaderEl.value, faqHeaderVisible)
   makeObs(faqEls.value, visibleFaqs)
-  makeSingle(timelineEl.value, timelineVisible)
-  makeObs(timelineItemEls.value, visibleTimelineItems)
-  makeSingle(supportEl.value, supportVisible)
-  makeObs(promiseEls.value, visiblePromises)
 })
 </script>
 
