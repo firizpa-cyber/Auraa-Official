@@ -8,14 +8,14 @@
       :speed="-0.8"
     />
     <div
-      class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] blur-[150px] rounded-full pointer-events-none"
+      class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] rounded-full pointer-events-none"
       style="background-color: var(--accent-subtle)"
     />
 
     <div class="max-w-7xl mx-auto px-6 relative z-10">
       <div
         ref="ctaEl"
-        class="relative overflow-hidden rounded-[2.5rem] md:rounded-[3rem] border backdrop-blur-xl transition-all duration-700"
+        class="relative overflow-hidden rounded-[2.5rem] md:rounded-[3rem] border transition-all duration-700"
         :style="[ctaStyle, { borderColor: 'var(--border-light)', backgroundColor: 'var(--glass-bg-strong)', boxShadow: '0 28px 90px var(--shadow-color)' }]"
       >
         <div
@@ -23,7 +23,7 @@
           style="background: linear-gradient(135deg, var(--accent-subtle), transparent 40%, var(--accent-subtle))"
         />
         <div
-          class="absolute -top-20 right-0 w-72 h-72 rounded-full blur-3xl"
+          class="absolute -top-20 right-0 w-72 h-72 rounded-full"
           style="background-color: var(--accent-subtle2)"
         />
 
@@ -75,7 +75,7 @@
               v-for="(benefit, index) in benefits"
               :key="benefit.title"
               ref="benefitEls"
-              class="rounded-[1.75rem] border backdrop-blur-sm p-5 md:p-6 transition-all duration-500"
+              class="rounded-[1.75rem] border p-5 md:p-6 transition-all duration-500"
               :style="[getBenefitStyle(index), { borderColor: 'var(--border-subtle)', backgroundColor: 'var(--glass-bg)', boxShadow: '0 16px 45px var(--shadow-color)' }]"
             >
               <div class="flex items-start gap-4">
@@ -122,6 +122,8 @@ const benefitEls = ref<HTMLElement[]>([])
 const ctaVisible = ref(false)
 const visibleBenefits = ref<boolean[]>(benefits.map(() => false))
 
+let observers: IntersectionObserver[] = []
+
 const ctaStyle = computed(() => ({
   opacity: ctaVisible.value ? 1 : 0,
   transform: ctaVisible.value ? 'translateY(0)' : 'translateY(24px)',
@@ -138,20 +140,34 @@ function getBenefitStyle(i: number) {
 onMounted(async () => {
   await nextTick()
   const ctaObs = new IntersectionObserver(
-    ([e]) => { if (e.isIntersecting) ctaVisible.value = true },
+    ([e]) => {
+      if (e.isIntersecting) {
+        ctaVisible.value = true
+        ctaObs.unobserve(e.target)
+      }
+    },
     { threshold: 0.1, rootMargin: '-120px' }
   )
   if (ctaEl.value) ctaObs.observe(ctaEl.value)
+  observers.push(ctaObs)
 
   const benObs = new IntersectionObserver(
     (entries) => {
       entries.forEach((e) => {
         const idx = benefitEls.value.indexOf(e.target as HTMLElement)
-        if (e.isIntersecting && idx !== -1) visibleBenefits.value[idx] = true
+        if (e.isIntersecting && idx !== -1) {
+          visibleBenefits.value[idx] = true
+          benObs.unobserve(e.target)
+        }
       })
     },
     { threshold: 0.1, rootMargin: '-120px' }
   )
   benefitEls.value.forEach((el) => el && benObs.observe(el))
+  observers.push(benObs)
+})
+
+onUnmounted(() => {
+  observers.forEach(obs => obs.disconnect())
 })
 </script>

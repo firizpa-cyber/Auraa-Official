@@ -22,17 +22,26 @@
             <a
               v-for="icon in socialIcons"
               :key="icon.name"
-              href="#"
-              class="glass-card group inline-flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold transition-all duration-200"
+              :href="icon.href"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="glass-card group inline-flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold transition-all duration-300"
               :style="{
                 color: 'var(--text-primary)',
+                borderColor: hoveredSocial === icon.name ? 'var(--border-medium)' : 'var(--border-subtle)',
+                backgroundColor: hoveredSocial === icon.name ? 'var(--accent-subtle)' : 'var(--glass-bg)',
+                transform: hoveredSocial === icon.name ? 'translateY(-2px)' : 'translateY(0)',
+                boxShadow: hoveredSocial === icon.name ? '0 12px 32px var(--shadow-color)' : '0 1px 3px var(--shadow-color)'
               }"
-              @mouseenter="handleSocialHover($event, true)"
-              @mouseleave="handleSocialHover($event, false)"
+              @mouseenter="hoveredSocial = icon.name"
+              @mouseleave="hoveredSocial = null"
             >
               <span
-                class="social-icon flex h-8 w-8 shrink-0 items-center justify-center rounded-lg transition-colors duration-200"
-                :style="{ backgroundColor: 'var(--accent-subtle)', color: 'var(--accent)' }"
+                class="social-icon flex h-8 w-8 shrink-0 items-center justify-center rounded-lg transition-colors duration-300"
+                :style="{
+                  backgroundColor: hoveredSocial === icon.name ? 'var(--accent)' : 'var(--accent-subtle)',
+                  color: hoveredSocial === icon.name ? '#ffffff' : 'var(--accent)'
+                }"
               >
                 <component :is="icon.component" class="w-4 h-4" />
               </span>
@@ -72,8 +81,8 @@
           </h4>
           <ul class="flex flex-col gap-4" style="color: var(--text-muted)">
             <li>ioauura@gmail.com</li>
-            <li>+992 92 000 0000</li>
-            <li>Таджикистан<br />город, Худжанд</li>
+            <li>+992 92 888 0719</li>
+            <li>Таджикистан, Худжанд</li>
           </ul>
         </div>
       </div>
@@ -96,26 +105,12 @@
 import { Github, Instagram, MessageCircle, Send } from 'lucide-vue-next'
 
 const socialIcons = [
-  { name: 'instagram', label: 'Instagram', component: Instagram },
-  { name: 'telegram', label: 'Telegram', component: Send },
-  { name: 'whatsapp', label: 'WhatsApp', component: MessageCircle },
-  { name: 'github', label: 'GitHub', component: Github },
+  { name: 'instagram', label: 'Instagram', component: Instagram, href: 'https://www.instagram.com/auraa_io/?e=8db77f0f-e2f2-4a39-9cb9-3b7fa0744d53&g=5' },
+  { name: 'telegram', label: 'Telegram', component: Send, href: 'https://t.me/Auraa_tj' },
+  { name: 'whatsapp', label: 'WhatsApp', component: MessageCircle, href: 'https://wa.me/992928880719' },
 ]
 
-function handleSocialHover(event: MouseEvent, isActive: boolean) {
-  const link = event.currentTarget as HTMLElement
-  const icon = link.querySelector('.social-icon') as HTMLElement | null
-
-  link.style.borderColor = isActive ? 'var(--border-medium)' : 'var(--border-subtle)'
-  link.style.backgroundColor = isActive ? 'var(--accent-subtle)' : 'var(--glass-bg)'
-  link.style.transform = isActive ? 'translateY(-2px)' : 'translateY(0)'
-  link.style.boxShadow = isActive ? '0 12px 32px var(--shadow-color)' : '0 1px 3px var(--shadow-color)'
-
-  if (icon) {
-    icon.style.backgroundColor = isActive ? 'var(--accent)' : 'var(--accent-subtle)'
-    icon.style.color = isActive ? '#ffffff' : 'var(--accent)'
-  }
-}
+const hoveredSocial = ref<string | null>(null)
 
 const navLinks = [
   { label: 'О нас', href: '#about' },

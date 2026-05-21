@@ -1,6 +1,6 @@
 <template>
   <button
-    class="theme-toggle group relative"
+    class="theme-toggle"
     :title="label"
     :aria-label="label"
     @click="toggle"
@@ -10,7 +10,7 @@
       <Sun
         v-if="!isDark"
         key="sun"
-        class="w-4 h-4 absolute inset-0 m-auto"
+        class="toggle-icon"
         style="color: var(--text-primary)"
       />
     </Transition>
@@ -20,22 +20,20 @@
       <Moon
         v-if="isDark"
         key="moon"
-        class="w-4 h-4 absolute inset-0 m-auto"
+        class="toggle-icon"
         style="color: var(--text-primary)"
       />
     </Transition>
 
     <!-- Tooltip -->
-    <span
-      class="absolute -bottom-9 left-1/2 -translate-x-1/2 text-[10px] font-bold uppercase tracking-widest whitespace-nowrap px-2 py-1 rounded-lg opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity duration-200"
-      style="background-color: var(--bg-tertiary); color: var(--text-muted); border: 1px solid var(--border-subtle)"
-    >
+    <span class="toggle-tooltip" style="background-color: var(--bg-tertiary); color: var(--text-muted); border: 1px solid var(--border-subtle)">
       {{ label }}
     </span>
   </button>
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue'
 import { Sun, Moon } from 'lucide-vue-next'
 
 const { isDark, theme, toggle } = useTheme()
@@ -47,6 +45,54 @@ const label = computed(() => {
 </script>
 
 <style scoped>
+.theme-toggle {
+  position: relative;
+  width: 40px;
+  height: 40px;
+  border: 1px solid var(--border-subtle);
+  border-radius: 0.75rem;
+  background: transparent;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+.theme-toggle:hover {
+  background-color: var(--accent-subtle);
+  border-color: var(--accent);
+}
+
+.theme-toggle:hover .toggle-tooltip {
+  opacity: 1;
+}
+
+.toggle-icon {
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  inset: 0;
+  margin: auto;
+}
+
+.toggle-tooltip {
+  position: absolute;
+  bottom: -2.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  white-space: nowrap;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.5rem;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+}
+
 .icon-swap-enter-active,
 .icon-swap-leave-active {
   transition: opacity 0.2s ease, transform 0.25s ease;

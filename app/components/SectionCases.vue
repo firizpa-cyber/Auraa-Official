@@ -25,11 +25,14 @@
       </div>
 
       <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
-        <div
+        <a
           v-for="(project, i) in cases"
           :key="project.title"
+          :href="project.href"
+          target="_blank"
+          rel="noopener noreferrer"
           ref="caseEls"
-          class="group cursor-pointer relative"
+          class="group cursor-pointer relative block"
           :style="getCaseStyle(i)"
           @mouseenter="hoveredIndex = i"
           @mouseleave="hoveredIndex = null"
@@ -43,6 +46,8 @@
               :alt="project.title"
               class="w-full h-full object-cover transition-transform duration-[1200ms] ease-out group-hover:scale-[1.08]"
               referrerpolicy="no-referrer"
+              loading="lazy"
+              decoding="async"
             />
 
             <!-- Overlay -->
@@ -112,7 +117,7 @@
               <ArrowUpRight class="w-5 h-5" />
             </div>
           </div>
-        </div>
+        </a>
       </div>
     </div>
   </section>
@@ -122,10 +127,10 @@
 import { ArrowUpRight, Plus } from 'lucide-vue-next'
 
 const cases = [
-  { title: 'Lumina App',     category: 'Дизайн продукта', description: 'Интуитивно понятный интерфейс для управления умным домом с использованием ИИ.',                    image: 'https://picsum.photos/seed/aura-case-1/1200/800', tags: ['UI/UX', 'Mobile', 'AI'] },
-  { title: 'Vortex Platform',category: 'Разработка',      description: 'Высокопроизводительная торговая платформа для криптоактивов с минимальной задержкой.',             image: 'https://picsum.photos/seed/aura-case-2/1200/800', tags: ['Web3', 'React', 'Node.js'] },
-  { title: 'Nexus Identity', category: 'Брендинг',        description: 'Полное визуальное переосмысление для глобальной технологической корпорации.',                      image: 'https://picsum.photos/seed/aura-case-3/1200/800', tags: ['Strategy', 'Logo', 'Brandbook'] },
-  { title: 'Aura Cloud',     category: 'Инфраструктура',  description: 'Облачное решение для масштабируемых корпоративных приложений.',                                    image: 'https://picsum.photos/seed/aura-case-4/1200/800', tags: ['Cloud', 'DevOps', 'Scalability'] },
+  { title: 'Oshiqona',       category: 'Разработка',      description: 'Современная платформа для заказа еды с удобным интерфейсом.',                                      image: 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&q=80&w=1200&h=800', tags: ['E-commerce', 'Nuxt', 'UI/UX'], href: 'https://test.oshiqona.tj' },
+  { title: 'FinGroup',       category: 'Финансы',         description: 'Корпоративный сайт для финансовой группы компаний.',                                               image: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&q=80&w=1200&h=800', tags: ['Corporate', 'Business'],       href: 'https://www.fingroup.tj/' },
+  { title: 'Ant Lumier',     category: 'Кино и ТВ',       description: 'Стриминговая платформа и каталог фильмов с глубокой проработкой деталей.',                        image: 'https://images.unsplash.com/photo-1485846234645-a62644f84728?auto=format&fit=crop&q=80&w=1200&h=800', tags: ['Streaming', 'Media'],         href: 'https://antlumier.vercel.app/' },
+  { title: 'SitDownPls',     category: 'Магазин мебели',  description: 'Интернет-магазин мебели с акцентом на визуальную подачу товаров.',                                image: 'https://images.unsplash.com/photo-1524758631624-e2822e304c36?auto=format&fit=crop&q=80&w=1200&h=800', tags: ['Shop', 'Furniture'],          href: 'https://ishuvaloff.github.io/SitDownPls/' },
 ]
 
 const hoveredIndex = ref<number | null>(null)
@@ -145,17 +150,26 @@ function getCaseStyle(i: number) {
   }
 }
 
+let observer: IntersectionObserver | null = null
+
 onMounted(async () => {
   await nextTick()
-  const observer = new IntersectionObserver(
+  observer = new IntersectionObserver(
     (entries) => {
       entries.forEach((entry) => {
         const idx = caseEls.value.indexOf(entry.target as HTMLElement)
-        if (entry.isIntersecting && idx !== -1) visibleCases.value[idx] = true
+        if (entry.isIntersecting && idx !== -1) {
+          visibleCases.value[idx] = true
+          observer?.unobserve(entry.target)
+        }
       })
     },
     { threshold: 0.1, rootMargin: '-100px' }
   )
-  caseEls.value.forEach((el) => el && observer.observe(el))
+  caseEls.value.forEach((el) => el && observer?.observe(el))
+})
+
+onUnmounted(() => {
+  observer?.disconnect()
 })
 </script>

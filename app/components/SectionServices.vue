@@ -217,6 +217,9 @@ const visibleServices      = ref<boolean[]>(services.map(() => false))
 const faqHeaderVisible     = ref(false)
 const visibleFaqs          = ref<boolean[]>(faqItems.map(() => false))
 
+// Observers for cleanup
+let observers: IntersectionObserver[] = []
+
 // Style functions
 function getServiceStyle(i: number) {
   return { opacity: visibleServices.value[i] ? 1 : 0, transform: visibleServices.value[i] ? 'translateY(0) scale(1)' : 'translateY(28px) scale(0.98)', transition: `opacity 0.55s ease ${i * 0.06}s, transform 0.55s ease ${i * 0.06}s` }
@@ -233,20 +236,34 @@ onMounted(async () => {
     const obs = new IntersectionObserver((entries) => {
       entries.forEach((e) => {
         const idx = els.indexOf(e.target as HTMLElement)
-        if (e.isIntersecting && idx !== -1) visible.value[idx] = true
+        if (e.isIntersecting && idx !== -1) {
+          visible.value[idx] = true
+          obs.unobserve(e.target) // Stop observing once visible
+        }
       })
     }, { threshold: 0.1, rootMargin: '-80px', ...opts })
     els.forEach((el) => el && obs.observe(el))
+    observers.push(obs)
   }
   const makeSingle = (el: HTMLElement | null, visible: Ref<boolean>) => {
     if (!el) return
-    const obs = new IntersectionObserver(([e]) => { if (e.isIntersecting) visible.value = true }, { threshold: 0.1, rootMargin: '-80px' })
+    const obs = new IntersectionObserver(([e]) => {
+      if (e.isIntersecting) {
+        visible.value = true
+        obs.unobserve(el)
+      }
+    }, { threshold: 0.1, rootMargin: '-80px' })
     obs.observe(el)
+    observers.push(obs)
   }
 
   makeObs(serviceEls.value, visibleServices)
   makeSingle(faqHeaderEl.value, faqHeaderVisible)
   makeObs(faqEls.value, visibleFaqs)
+})
+
+onUnmounted(() => {
+  observers.forEach(obs => obs.disconnect())
 })
 </script>
 

@@ -11,7 +11,7 @@
     <!-- First Marquee - Tilted Right -->
     <div class="absolute w-[150%] rotate-[-5deg] z-10">
       <div
-        class="flex overflow-hidden whitespace-nowrap border-y py-6 backdrop-blur-sm shadow-2xl"
+        class="flex overflow-hidden whitespace-nowrap border-y py-6 shadow-2xl"
         style="border-color: var(--border-light); background-color: var(--glass-bg-strong)"
       >
         <div class="marquee-track marquee-left flex gap-12 items-center w-max">
@@ -48,7 +48,7 @@
     <!-- Glow -->
     <div class="absolute inset-0 pointer-events-none z-30 flex items-center justify-center">
       <div
-        class="w-64 h-64 rounded-full blur-[100px]"
+        class="w-64 h-64 rounded-full"
         style="background-color: var(--accent-subtle2)"
       />
     </div>

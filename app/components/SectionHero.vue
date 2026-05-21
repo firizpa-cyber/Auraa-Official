@@ -99,6 +99,11 @@ const visualRef = ref<HTMLElement | null>(null)
 let gsapInstance: typeof import('gsap').gsap | null = null
 let ctx: import('gsap').Context | null = null
 
+// Performance optimization: throttling pointer move
+let rafId: number | null = null
+let targetX = 0
+let targetY = 0
+
 onMounted(async () => {
   const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
   if (prefersReducedMotion || !heroRef.value) return
@@ -113,6 +118,7 @@ onMounted(async () => {
       duration: 0.9,
       ease: 'power3.out',
       stagger: 0.08,
+      force3D: true
     })
 
     gsap.from('.hero-device', {
@@ -122,6 +128,7 @@ onMounted(async () => {
       duration: 1.05,
       ease: 'power3.out',
       delay: 0.12,
+      force3D: true
     })
 
     gsap.from('.phone-preview', {
@@ -132,41 +139,58 @@ onMounted(async () => {
       ease: 'back.out(1.45)',
       stagger: 0.08,
       delay: 0.3,
+      force3D: true
     })
   }, heroRef.value)
 })
 
 onUnmounted(() => {
   ctx?.revert()
+  if (rafId) cancelAnimationFrame(rafId)
 })
+
+function updateParallax() {
+  if (!gsapInstance) return
+
+  gsapInstance.to(visualRef.value, {
+    x: targetX * 18,
+    y: targetY * 14,
+    rotateY: targetX * -5,
+    rotateX: targetY * 4,
+    duration: 0.8,
+    ease: 'power3.out',
+    overwrite: 'auto',
+    force3D: true
+  })
+
+  gsapInstance.to(titleRef.value, {
+    x: targetX * -7,
+    y: targetY * -5,
+    duration: 0.8,
+    ease: 'power3.out',
+    overwrite: 'auto',
+    force3D: true
+  })
+
+  rafId = null
+}
 
 function handlePointerMove(event: PointerEvent) {
   if (!heroRef.value || !gsapInstance) return
 
   const rect = heroRef.value.getBoundingClientRect()
-  const x = (event.clientX - rect.left) / rect.width - 0.5
-  const y = (event.clientY - rect.top) / rect.height - 0.5
+  targetX = (event.clientX - rect.left) / rect.width - 0.5
+  targetY = (event.clientY - rect.top) / rect.height - 0.5
 
-  gsapInstance.to(visualRef.value, {
-    x: x * 18,
-    y: y * 14,
-    rotateY: x * -5,
-    rotateX: y * 4,
-    duration: 0.8,
-    ease: 'power3.out',
-  })
-
-  gsapInstance.to(titleRef.value, {
-    x: x * -7,
-    y: y * -5,
-    duration: 0.8,
-    ease: 'power3.out',
-  })
-
+  if (!rafId) {
+    rafId = requestAnimationFrame(updateParallax)
+  }
 }
 
 function resetPointer() {
   if (!gsapInstance) return
+  if (rafId) cancelAnimationFrame(rafId)
+  rafId = null
 
   gsapInstance.to([visualRef.value, titleRef.value], {
     x: 0,
@@ -175,6 +199,7 @@ function resetPointer() {
     rotateY: 0,
     duration: 0.9,
     ease: 'power3.out',
+    force3D: true
   })
 }
 </script>
@@ -185,8 +210,8 @@ function resetPointer() {
   --hero-accent-hover: var(--accent-hover);
   color: var(--text-primary);
   background:
-    radial-gradient(ellipse at 80% 8%, rgba(15, 37, 75, 0.08), transparent 34%),
-    linear-gradient(180deg, #fbfbfc 0%, #f2f3f5 100%);
+    radial-gradient(ellipse at 80% 8%, var(--accent-subtle2), transparent 34%),
+    linear-gradient(180deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
   isolation: isolate;
 }
 
@@ -194,7 +219,7 @@ function resetPointer() {
   position: absolute;
   inset: 0;
   background:
-    repeating-linear-gradient(100deg, rgba(15, 37, 75, 0.035) 0 1px, transparent 1px 84px);
+    repeating-linear-gradient(100deg, var(--border-subtle) 0 1px, transparent 1px 84px);
   opacity: 0.9;
 }
 
@@ -206,13 +231,14 @@ function resetPointer() {
   height: 26%;
   pointer-events: none;
   background:
-    radial-gradient(ellipse at 8% 80%, color-mix(in srgb, var(--bg-primary), white 40%) 0 28%, transparent 29%),
-    radial-gradient(ellipse at 26% 72%, color-mix(in srgb, var(--bg-primary), white 50%) 0 24%, transparent 25%),
-    radial-gradient(ellipse at 50% 82%, color-mix(in srgb, var(--bg-primary), white 45%) 0 30%, transparent 31%),
-    radial-gradient(ellipse at 74% 76%, color-mix(in srgb, var(--bg-primary), white 40%) 0 26%, transparent 27%),
-    radial-gradient(ellipse at 94% 82%, color-mix(in srgb, var(--bg-primary), white 45%) 0 28%, transparent 29%);
+    radial-gradient(ellipse at 8% 80%, color-mix(in srgb, var(--bg-primary), transparent 40%) 0 28%, transparent 29%),
+    radial-gradient(ellipse at 26% 72%, color-mix(in srgb, var(--bg-primary), transparent 50%) 0 24%, transparent 25%),
+    radial-gradient(ellipse at 50% 82%, color-mix(in srgb, var(--bg-primary), transparent 45%) 0 30%, transparent 31%),
+    radial-gradient(ellipse at 74% 76%, color-mix(in srgb, var(--bg-primary), transparent 40%) 0 26%, transparent 27%),
+    radial-gradient(ellipse at 94% 82%, color-mix(in srgb, var(--bg-primary), transparent 45%) 0 28%, transparent 29%);
   opacity: 0.92;
   filter: blur(1px);
+  will-change: transform;
 }
 
 .hero-curtain {
@@ -220,9 +246,10 @@ function resetPointer() {
   inset: 0;
   pointer-events: none;
   background:
-    linear-gradient(80deg, transparent 0 45%, rgba(15, 37, 75, 0.08) 45.2% 45.45%, transparent 45.7% 100%),
-    radial-gradient(ellipse at 72% 0%, rgba(15, 37, 75, 0.08), transparent 46%);
+    linear-gradient(80deg, transparent 0 45%, var(--border-subtle) 45.2% 45.45%, transparent 45.7% 100%),
+    radial-gradient(ellipse at 72% 0%, var(--border-subtle), transparent 46%);
   opacity: 0.75;
+  will-change: transform;
 }
 
 .hero-title {
@@ -232,6 +259,7 @@ function resetPointer() {
   line-height: 1.02;
   letter-spacing: 0;
   text-wrap: balance;
+  will-change: transform;
 }
 
 .hero-title span {
@@ -246,6 +274,7 @@ function resetPointer() {
   font-size: clamp(1.35rem, 2vw, 1.85rem);
   font-weight: 400;
   line-height: 1.25;
+  will-change: transform, opacity;
 }
 
 .hero-note {
@@ -310,6 +339,7 @@ function resetPointer() {
   position: relative;
   min-height: min(58vw, 540px);
   perspective: 1200px;
+  will-change: transform;
 }
 
 .hero-device {
@@ -320,6 +350,7 @@ function resetPointer() {
   transform: rotate(12deg) translate(0.8rem, 1.4rem);
   transform-style: preserve-3d;
   filter: drop-shadow(0 34px 50px var(--shadow-strong));
+  will-change: transform;
 }
 
 .laptop-screen {
@@ -330,6 +361,7 @@ function resetPointer() {
     linear-gradient(145deg, rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0.055)),
     #0b1424;
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18);
+  will-change: transform;
 }
 
 .browser-bar {
@@ -457,6 +489,12 @@ function resetPointer() {
   background:
     linear-gradient(180deg, #e9edf4, #b9c3d0);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  transition: background-color 0.4s ease;
+}
+
+.dark .laptop-base {
+  background: linear-gradient(180deg, #1e293b, #0f172a);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
 }
 
 .keyboard {
@@ -469,6 +507,11 @@ function resetPointer() {
   height: 0.48rem;
   border-radius: 0.18rem;
   background: rgba(15, 37, 75, 0.45);
+  transition: background-color 0.4s ease;
+}
+
+.dark .keyboard i {
+  background: rgba(232, 237, 245, 0.15);
 }
 
 .trackpad {
@@ -477,6 +520,11 @@ function resetPointer() {
   margin: 0.75rem auto 0;
   border-radius: 0.45rem;
   background: rgba(15, 37, 75, 0.14);
+  transition: background-color 0.4s ease;
+}
+
+.dark .trackpad {
+  background: rgba(232, 237, 245, 0.08);
 }
 
 .phone-preview {

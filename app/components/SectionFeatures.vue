@@ -69,6 +69,8 @@ const featureEls = ref<HTMLElement[]>([])
 const visibleFeatures = ref<boolean[]>(features.map(() => false))
 const hoveredFeatureIndex = ref<number | null>(null)
 
+let observer: IntersectionObserver | null = null
+
 function getFeatureStyle(i: number) {
   const isVisible = visibleFeatures.value[i]
   const isHovered = hoveredFeatureIndex.value === i
@@ -84,15 +86,22 @@ function getFeatureStyle(i: number) {
 
 onMounted(async () => {
   await nextTick()
-  const observer = new IntersectionObserver(
+  observer = new IntersectionObserver(
     (entries) => {
       entries.forEach((entry) => {
         const idx = featureEls.value.indexOf(entry.target as HTMLElement)
-        if (entry.isIntersecting && idx !== -1) visibleFeatures.value[idx] = true
+        if (entry.isIntersecting && idx !== -1) {
+          visibleFeatures.value[idx] = true
+          observer?.unobserve(entry.target)
+        }
       })
     },
     { threshold: 0.1 }
   )
-  featureEls.value.forEach((el) => el && observer.observe(el))
+  featureEls.value.forEach((el) => el && observer?.observe(el))
+})
+
+onUnmounted(() => {
+  observer?.disconnect()
 })
 </script>

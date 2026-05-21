@@ -1,6 +1,6 @@
 <template>
   <nav
-    class="fixed top-0 left-0 w-full z-50 backdrop-blur-lg border-b"
+    class="fixed top-0 left-0 w-full z-50 border-b"
     style="background-color: var(--glass-bg-strong); border-color: var(--border-subtle)"
   >
     <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">

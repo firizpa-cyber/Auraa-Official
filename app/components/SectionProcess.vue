@@ -95,17 +95,26 @@ function getStageStyle(i: number) {
   }
 }
 
+let observer: IntersectionObserver | null = null
+
 onMounted(async () => {
   await nextTick()
-  const observer = new IntersectionObserver(
+  observer = new IntersectionObserver(
     (entries) => {
       entries.forEach((entry) => {
         const idx = stageEls.value.indexOf(entry.target as HTMLElement)
-        if (entry.isIntersecting && idx !== -1) visibleStages.value[idx] = true
+        if (entry.isIntersecting && idx !== -1) {
+          visibleStages.value[idx] = true
+          observer?.unobserve(entry.target)
+        }
       })
     },
     { threshold: 0.1 }
   )
-  stageEls.value.forEach((el) => el && observer.observe(el))
+  stageEls.value.forEach((el) => el && observer?.observe(el))
+})
+
+onUnmounted(() => {
+  observer?.disconnect()
 })
 </script>

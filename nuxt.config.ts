@@ -6,12 +6,34 @@ export default defineNuxtConfig({
 
   css: ['./app/assets/css/main.css'],
 
+  experimental: {
+    payloadExtraction: true,
+    viewTransition: true,
+    renderJsonPayloads: true,
+  },
+
   vite: {
     plugins: [tailwindcss()],
+    build: {
+      cssMinify: 'lightningcss',
+      rollupOptions: {
+        output: {
+          manualChunks: {
+            'gsap': ['gsap'],
+            'lucide': ['lucide-vue-next']
+          }
+        }
+      }
+    }
   },
 
   // Nitro config for Node.js native modules
   nitro: {
+    compressPublicAssets: true,
+    prerender: {
+      crawlLinks: true,
+      routes: ['/'],
+    },
     externals: {
       // pdfkit and nodemailer use Node.js built-ins — keep external
       external: ['pdfkit', 'nodemailer'],
@@ -57,8 +79,15 @@ export default defineNuxtConfig({
         { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
         { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossorigin: '' },
         {
+          rel: 'preload',
+          as: 'style',
+          href: 'https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@300;400;500;600;700&display=swap',
+        },
+        {
           rel: 'stylesheet',
           href: 'https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@300;400;500;600;700&display=swap',
+          media: 'print',
+          onload: "this.media='all'",
         },
       ],
     },

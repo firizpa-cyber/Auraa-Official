@@ -22,10 +22,12 @@
             style="border-color: var(--border-subtle)"
           >
             <img
-              src="https://picsum.photos/seed/aura-minimal/800/1000"
+              src="https://images.unsplash.com/photo-1497215728101-856f4ea42174?auto=format&fit=crop&q=80&w=800&h=1000"
               alt="О компании Aura"
               class="w-full h-full object-cover"
               referrerpolicy="no-referrer"
+              loading="lazy"
+              decoding="async"
             />
             <div class="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-black/45 via-black/10 to-transparent pointer-events-none" />
             <div class="absolute left-6 bottom-6">
@@ -106,13 +108,16 @@ const textColStyle = computed(() => ({
   transform: textVisible.value ? 'translateX(0)' : 'translateX(30px)',
 }))
 
+let observer: IntersectionObserver | null = null
+
 onMounted(() => {
-  const observer = new IntersectionObserver(
+  observer = new IntersectionObserver(
     (entries) => {
       entries.forEach((entry) => {
         if (entry.isIntersecting) {
           if (entry.target === imgCol.value) imgVisible.value = true
           if (entry.target === textCol.value) textVisible.value = true
+          observer?.unobserve(entry.target)
         }
       })
     },
@@ -120,5 +125,9 @@ onMounted(() => {
   )
   if (imgCol.value) observer.observe(imgCol.value)
   if (textCol.value) observer.observe(textCol.value)
+})
+
+onUnmounted(() => {
+  observer?.disconnect()
 })
 </script>
