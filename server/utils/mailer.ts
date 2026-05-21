@@ -216,7 +216,7 @@ export async function sendBriefEmail(brief: BriefRecord, pdfBuffer: Buffer): Pro
 </html>
   `.trim()
 
-  transporter.sendMail({
+  await transporter.sendMail({
     from: `"Auraa Digital" <${from}>`,
     to,
     subject: `📋 New brief #${String(brief.id).padStart(4, '0')} — ${safeText(brief.name)} (${safeText(brief.project_type)})`,
