@@ -593,7 +593,7 @@ function resetPointer() {
   }
 
   .hero-visual {
-    min-height: 27rem;
+    display: none;
   }
 
   .site-preview {
