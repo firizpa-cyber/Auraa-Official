@@ -4,6 +4,8 @@ export default defineNuxtConfig({
   compatibilityDate: '2025-07-15',
   devtools: { enabled: true },
 
+  modules: ['@vercel/speed-insights/nuxt'],
+
   css: ['./app/assets/css/main.css'],
 
   experimental: {
