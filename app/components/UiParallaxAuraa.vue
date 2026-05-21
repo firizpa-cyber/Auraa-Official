@@ -16,4 +16,5 @@ const props = defineProps<{
 }>()
 
 // Disabled parallax scrolling to improve scroll performance
+const parallaxY = ref(0)
 </script>

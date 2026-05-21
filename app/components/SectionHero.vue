@@ -97,7 +97,7 @@ const titleRef = ref<HTMLElement | null>(null)
 const visualRef = ref<HTMLElement | null>(null)
 
 let gsapInstance: typeof import('gsap').gsap | null = null
-let ctx: import('gsap').Context | null = null
+let ctx: any = null
 
 // Performance optimization: throttling pointer move
 let rafId: number | null = null

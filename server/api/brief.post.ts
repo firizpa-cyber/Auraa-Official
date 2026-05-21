@@ -59,27 +59,25 @@ export default defineEventHandler(async (event) => {
 
   console.log(`[Brief] Saved #${brief.id} from ${brief.email}`)
 
-  // Generate PDF + Send email in background (non-blocking)
-  setImmediate(async () => {
-    try {
-      console.log(`[Brief] Starting email process for #${brief.id}...`)
-      
-      const pdf = await generateBriefPdf(brief)
-      console.log(`[Brief] PDF generated for #${brief.id} (${pdf.length} bytes)`)
-      
-      await sendBriefEmail(brief, pdf)
-      console.log(`[Brief] Email sent for #${brief.id}`)
-      
-      await updateBriefStatus(brief.id, 'sent')
-      console.log(`[Brief] Status updated to 'sent' for #${brief.id}`)
-    }
-    catch (err) {
-      const errorMsg = err instanceof Error ? err.message : String(err)
-      console.error(`[Brief] Email failed for #${brief.id}: ${errorMsg}`)
-      console.error(err)
-      await updateBriefStatus(brief.id, 'email_failed').catch(() => {})
-    }
-  })
+  // Generate PDF + Send email (awaiting to ensure serverless doesn't terminate early)
+  try {
+    console.log(`[Brief] Starting email process for #${brief.id}...`)
+    
+    const pdf = await generateBriefPdf(brief)
+    console.log(`[Brief] PDF generated for #${brief.id} (${pdf.length} bytes)`)
+    
+    await sendBriefEmail(brief, pdf)
+    console.log(`[Brief] Email sent for #${brief.id}`)
+    
+    await updateBriefStatus(brief.id, 'sent')
+    console.log(`[Brief] Status updated to 'sent' for #${brief.id}`)
+  }
+  catch (err) {
+    const errorMsg = err instanceof Error ? err.message : String(err)
+    console.error(`[Brief] Email failed for #${brief.id}: ${errorMsg}`)
+    console.error(err)
+    await updateBriefStatus(brief.id, 'email_failed').catch(() => {})
+  }
 
   return {
     success: true,

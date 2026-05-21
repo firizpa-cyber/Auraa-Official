@@ -7,9 +7,15 @@ let _client: Client | null = null
 export function getDb(): Client {
   if (_client) return _client
 
-  // Ensure data directory exists
-  const dataDir = join(process.cwd(), 'data')
-  mkdirSync(dataDir, { recursive: true })
+  // Use /tmp on Vercel/Serverless environments since process.cwd() is read-only
+  const isVercel = process.env.VERCEL || process.env.AWS_REGION
+  const dataDir = isVercel ? '/tmp/data' : join(process.cwd(), 'data')
+  
+  try {
+    mkdirSync(dataDir, { recursive: true })
+  } catch (err) {
+    console.warn('[DB] Could not create data directory:', err)
+  }
 
   const dbPath = join(dataDir, 'briefs.db')
 

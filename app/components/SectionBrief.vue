@@ -448,7 +448,7 @@ const step1Fields = [
   { key: 'email', label: 'Email',           type: 'email', required: true, placeholder: 'hello@example.com', inputmode: 'email' },
   { key: 'phone', label: 'Номер телефона',  type: 'tel',   required: false, placeholder: '+7 (999) 000-0000', inputmode: 'tel' },
   { key: 'messengerContact', label: 'Telegram / WhatsApp', type: 'text', required: false, placeholder: '@username или +7 (999) 000-0000', inputmode: 'text' },
-]
+] as const
 
 const TIMELINE_OPTIONS = [
   'Срочно, до 1 недели',
@@ -558,7 +558,7 @@ const isProjectTypeOpen = ref(false)
 const isTimelineOpen = ref(false)
 const isPhoneCountryOpen = ref(false)
 const phoneCountrySearch = ref('')
-const selectedPhoneCountry = ref(PHONE_COUNTRIES[0])
+const selectedPhoneCountry = ref<typeof PHONE_COUNTRIES[number]>(PHONE_COUNTRIES[0])
 const projectTypeRef = ref<HTMLElement | null>(null)
 const timelineRef = ref<HTMLElement | null>(null)
 const phoneCountryRef = ref<HTMLElement | null>(null)
@@ -720,7 +720,9 @@ function handleClickOutside(e: MouseEvent) {
   if (timelineRef.value && !timelineRef.value.contains(e.target as Node)) {
     isTimelineOpen.value = false
   }
-  if (phoneCountryRef.value && !phoneCountryRef.value.contains(e.target as Node)) {
+  const phoneRefVal = phoneCountryRef.value as any
+  const phoneEl = Array.isArray(phoneRefVal) ? phoneRefVal[0] : phoneRefVal
+  if (phoneEl && !phoneEl.contains(e.target as Node)) {
     isPhoneCountryOpen.value = false
   }
 }
